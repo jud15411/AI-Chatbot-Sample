@@ -1,154 +1,60 @@
-// Replace with your actual API key
-const API_KEY = 'AIzaSyCDnOgI8gQnxs8su_JRnnMDs8_lJcVxaxU';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const chatMessages = document.getElementById('chat-messages');
-const chatForm = document.getElementById('chat-form');
-const userInput = document.getElementById('user-input');
 
-// Function to add a message to the chat
-function addMessage(content, isUser = false) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+const API_KEY = "AIzaSyCDnOgI8gQnxs8su_JRnnMDs8_lJcVxaxU";
+const genAI = new GoogleGenerativeAI(API_KEY);
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.0-flash"
+});
+
+let chat = null;
+
+async function sendMessage() {
+    const userMessage = document.querySelector(".chat-window input").value;
     
-    const messageContent = document.createElement('div');
-    messageContent.className = 'message-content';
-    messageContent.textContent = content;
-    
-    messageDiv.appendChild(messageContent);
-    chatMessages.appendChild(messageDiv);
-    
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+    if (!userMessage.length) return;
 
-// Function to show typing indicator
-function showTypingIndicator() {
-    const indicator = document.createElement('div');
-    indicator.className = 'message bot typing-indicator';
-    indicator.innerHTML = `
-        <span></span>
-        <span></span>
-        <span></span>
-    `;
-    chatMessages.appendChild(indicator);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return indicator;
-}
-
-// Function to remove typing indicator
-function removeTypingIndicator(indicator) {
-    if (indicator && indicator.parentNode) {
-        indicator.parentNode.removeChild(indicator);
-    }
-}
-
-// Function to verify API key and available models
-async function verifyAPIKey() {
     try {
-        console.log('Verifying API key...');
-        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + API_KEY);
-        const data = await response.json();
-        
-        if (!response.ok) {
-            console.error('API Key Error:', data);
-            addMessage('Error: API key verification failed. Please check your API key permissions.', false);
-            return false;
-        }
-        
-        console.log('API Key verified successfully. Available models:', data);
-        return true;
-    } catch (error) {
-        console.error('API Key verification error:', error);
-        addMessage('Error: Could not verify API key. Please check your internet connection.', false);
-        return false;
-    }
-}
+        document.querySelector(".chat-window input").value = "";
+        document.querySelector(".chat-window .chat").insertAdjacentHTML("beforeend", `
+            <div class="user">
+                <p>${userMessage}</p>
+            </div>
+        `);
 
-// Function to handle the chat with Gemini Pro
-async function handleChat(userMessage) {
-    try {
-        console.log('Sending message to Gemini API:', userMessage);
-        
-        // First verify the API key
-        const isVerified = await verifyAPIKey();
-        if (!isVerified) {
-            return 'Please check your API key configuration and try again.';
+        // Initialize chat instance only once
+        if (!chat) {
+            chat = model.startChat();
         }
 
-        const requestBody = {
-            contents: [{
-                parts: [{
-                    text: userMessage
-                }]
-            }]
-        };
+        // Send message and get response
+        const result = await chat.sendMessage(userMessage);
         
-        console.log('Request body:', requestBody);
-        
-        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro-latest:generateContent?key=' + API_KEY, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody)
-        });
+        document.querySelector(".chat-window .chat").insertAdjacentHTML("beforeend", `
+            <div class="model">
+                <p>${result.response.text()}</p>
+            </div>
+        `);
 
-        console.log('Response status:', response.status);
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('API Error:', errorData);
-            throw new Error(errorData.error?.message || 'API request failed');
-        }
-
-        const data = await response.json();
-        console.log('API Response:', data);
-        
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            throw new Error('Invalid response from API');
-        }
     } catch (error) {
         console.error('Error:', error);
-        return 'Sorry, I encountered an error. Please try again.';
+        document.querySelector(".chat-window .chat").insertAdjacentHTML("beforeend", `
+            <div class="error">
+                <p>The message could not be sent. Please try again.</p>
+            </div>
+        `);
     }
 }
 
-// Handle form submission
-chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const message = userInput.value.trim();
-    if (!message) return;
-    
-    console.log('Form submitted with message:', message);
-    
-    // Add user message
-    addMessage(message, true);
-    userInput.value = '';
-    
-    // Show typing indicator
-    const typingIndicator = showTypingIndicator();
-    
-    // Get AI response
-    const response = await handleChat(message);
-    
-    // Remove typing indicator and add AI response
-    removeTypingIndicator(typingIndicator);
-    addMessage(response);
-});
-
-// Handle Enter key
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+// Add event listener for Enter key
+const input = document.querySelector(".chat-window input");
+input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        chatForm.dispatchEvent(new Event('submit'));
+        sendMessage();
     }
 });
 
-// Verify API key when the page loads
-window.addEventListener('load', () => {
-    console.log('Page loaded, verifying API key...');
-    verifyAPIKey();
-}); 
+// Add event listener for click
+const button = document.querySelector(".chat-window .input-area button");
+button.addEventListener("click", sendMessage);
