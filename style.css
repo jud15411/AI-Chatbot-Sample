@@ -1,0 +1,218 @@
+:root {
+    --grey: #f5f5f5;
+    --blue: #3d88f9;
+    --black: #1a1a1a;
+    --primary: #4285F4;
+    --success: #4CAF50;
+    --warning: #FFC107;
+    --error: #F44336;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: "Raleway", sans-serif;
+    background-color: #f5f5f5;
+}
+
+.setup-guide {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.step {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.step h2 {
+    color: var(--black);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+.step ol {
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
+}
+
+.step li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+.step a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.step a:hover {
+    text-decoration: underline;
+}
+
+/* Chat Container Styles */
+.chat-container {
+    * {
+        font-family: "Raleway", sans-serif;
+    }
+
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background-color: var(--primary);
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+        h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 8px;
+        }
+    }
+
+    .chat {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .chat {
+        flex: 1;
+        padding: 0 8px;
+        overflow-y: scroll;
+
+        p {
+            border-radius: 20px;
+            width: 80%;
+            margin: 8px 0;
+            font-size: 16px;
+            padding: 16px;
+        }
+
+        div.model {
+
+            p {
+                background-color: var(--grey);
+            }
+
+            
+        }
+
+        div.user {
+            display: flex;
+            justify-content: flex-end;
+
+            p {
+                background-color: var(--blue);
+                color: white;
+            }
+        }
+
+        div.error {
+            p {
+                font-size: 14px;
+                text-align: center;
+                color: red;
+            }
+        }
+        
+    }
+
+    .input-area {
+        height: 70px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 8px;
+        border-top: 1px solid lightgray;
+
+        input {
+            height: 40px;
+            flex: 1;
+            border: none;
+            background-color: var(--grey);
+            border-radius: 20px;
+            padding-left: 20px;
+            font-size: 16px;
+        }
+
+        button {
+            height: 40px;
+            width: 40px;
+            border-radius: 100%;
+            border: none;
+            margin-left: 12px;
+            background-color: var(--blue);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+
+            img {
+                width: 18px;
+            }
+
+            &:hover {
+                box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+            }
+        }
+    }
+}
+
+
+
+.loader {
+    width: 40px;
+    opacity: 0.4;
+    aspect-ratio: 4;
+    background: radial-gradient(circle closest-side,#000 90%,#0000) 0/calc(100%/3) 100% space;
+    clip-path: inset(0 100% 0 0);
+    animation: l1 1.5s steps(4) infinite;
+  }
+  @keyframes l1 {to{clip-path: inset(0 -34% 0 0)}}
