@@ -21,7 +21,13 @@
             </button>
         </div>
     </div>
-    <script src="https://www.gstatic.com/ai/generativeai/v1beta/generativeai.js"></script>
+    <script src="https://www.gstatic.com/ai/generativeai/v1/generativeai.js"></script>
+    <script>
+        // Wait for the generativeai library to load
+        window.addEventListener('load', function() {
+            console.log('Generative AI library loaded');
+        });
+    </script>
     <script src="chatbot.js"></script>
 </body>
 </html>

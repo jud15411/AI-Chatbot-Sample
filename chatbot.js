@@ -1,52 +1,97 @@
-// Initialize Gemini Pro client
-const genAI = generativeai.GenerativeAI('AIzaSyC_hKlpzVqgcq9VX3E9yYP5BQtXGsAuL9Y');
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-// DOM Elements
-const chatMessages = document.getElementById('chat-messages');
-const userInput = document.getElementById('user-input');
-const sendButton = document.getElementById('send-button');
-
-// Add event listener for Enter key
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && userInput.value.trim()) {
-        sendMessage();
+(function() {
+    // Wait for generativeai library to load
+    if (typeof generativeai === 'undefined') {
+        console.log('Waiting for generativeai library to load...');
+        return;
     }
-});
 
-// Add event listener for send button
-sendButton.addEventListener('click', () => {
-    if (userInput.value.trim()) {
-        sendMessage();
+    // Initialize Gemini Pro
+    const model = generativeai.GenerativeModel({
+        model: 'gemini-pro',
+        apiKey: 'AIzaSyC_hKlpzVqgcq9VX3E9yYP5BQtXGsAuL9Y'
+    });
+
+    console.log('Gemini Pro initialized successfully');
+
+    function initChatbot() {
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        console.log('DOM Elements found:', {
+            chatMessages: chatMessages ? 'Found' : 'Not found',
+            userInput: userInput ? 'Found' : 'Not found',
+            sendButton: sendButton ? 'Found' : 'Not found'
+        });
+
+        if (!chatMessages || !userInput || !sendButton) {
+            console.error('One or more required DOM elements not found');
+            return;
+        }
+
+        console.log('Chatbot initialized with elements:', {
+            chatMessages: !!chatMessages,
+            userInput: !!userInput,
+            sendButton: !!sendButton
+        });
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage(message) {
+            console.log('Starting sendMessage with:', message);
+            addMessage(message, 'user');
+            userInput.value = '';
+            userInput.disabled = true;
+            sendButton.disabled = true;
+            
+            try {
+                // Get response from Gemini Pro
+                const response = await model.generateContent(message);
+                const responseText = await response.response;
+                
+                // Add bot message to chat
+                addMessage(responseText, 'bot');
+            } catch (error) {
+                console.error('Gemini Pro error:', error);
+                addMessage('Sorry, there was an error processing your request. Please try again.', 'bot');
+            } finally {
+                userInput.disabled = false;
+                sendButton.disabled = false;
+            }
+        }
+
+        sendButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            try {
+                console.log('Sending message:', message);
+                sendMessage(message);
+            } catch (error) {
+                console.error('Send button error:', error);
+                addMessage('Failed to send message. Please try again.', 'bot');
+            }
+        });
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && userInput.value.trim()) {
+                sendMessage(userInput.value.trim());
+            }
+        });
+
+        console.log('Chatbot initialized successfully');
     }
-});
 
-async function sendMessage() {
-    const userMessage = userInput.value.trim();
-    
-    // Add user message to chat
-    addMessage(userMessage, 'user');
-    userInput.value = '';
-    
-    // Get response from Gemini Pro
-    try {
-        const response = await model.generateContent(userMessage);
-        const responseText = await response.response;
-        
-        // Add bot message to chat
-        addMessage(responseText, 'bot');
-    } catch (error) {
-        console.error('Error:', error);
-        addMessage('Sorry, there was an error processing your request.', 'bot');
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initChatbot);
+    } else {
+        initChatbot();
     }
-}
-
-function addMessage(text, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}-message`;
-    messageDiv.textContent = text;
-    chatMessages.appendChild(messageDiv);
-    
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+})();
