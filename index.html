@@ -3,40 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat Assistant</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Gemini Pro Chatbot</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="chat-container">
         <div class="chat-header">
-            <h2>AI Chat Assistant</h2>
+            <h1>Gemini Pro Chatbot</h1>
         </div>
-        <div class="chat">
-            <div class="model">
-                <p>Hello, What would you like to make today?</p>
-            </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be inserted here -->
         </div>
-        <div class="input-area">
-            <input placeholder="I would like to make some..." type="text">
-            <button>
-                <img src="send-icon.png" alt="send">
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-button">
+                <img src="send-icon.png" alt="Send">
             </button>
         </div>
     </div>
-
-    <script type="importmap">
-        {
-          "imports": {
-            "@google/generative-ai": "https://esm.run/@google/generative-ai"
-          }
-        }
-    </script>
-    
-    <script type="module" src="main.js"></script>
-    
+    <script src="https://www.gstatic.com/ai/generativeai/v1beta/generativeai.js"></script>
+    <script src="chatbot.js"></script>
 </body>
 </html>
