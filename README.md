@@ -1,35 +1,57 @@
-# AI Chat Assistant
+# AI Chatbot with Gemini Pro
 
-A modern web-based chatbot powered by Google's Gemini AI model.
+A modern, full-page chatbot application built with React, TypeScript, and Google's Gemini Pro API.
 
 ## Features
 
-- Real-time conversation with Gemini AI
-- Streamed responses
-- Modern, responsive UI
-- Error handling and user feedback
-- Conversation history
-- Typing indicators
-- Loading states
+- Clean, modern UI with Tailwind CSS
+- Real-time chat interface
+- Integration with Google's Gemini Pro AI
+- Responsive design
+- TypeScript for better type safety
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+- Google Gemini Pro API key
 
 ## Setup
 
-1. Clone this repository
-2. Replace the API key in `main.js` with your own Google Gemini API key
-3. Run a local HTTPS server (required for Gemini API)
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the root directory and add your Gemini API key:
+   ```
+   REACT_APP_GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+4. Start the development server:
+   ```bash
+   npm start
+   ```
 
-## Requirements
+## Getting a Gemini API Key
 
-- Google Gemini API key
-- HTTPS server (required for Gemini API)
-- Modern web browser
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Copy the key and paste it in your `.env` file
 
 ## Usage
 
-1. Open the application in your web browser
+1. Open the application in your browser (default: http://localhost:3000)
 2. Type your message in the input field
-3. Click the send button or press Enter to send
-4. Wait for the AI's response
+3. Press Enter or click the Send button to send your message
+4. The AI will respond in real-time
+
+## Technologies Used
+
+- React
+- TypeScript
+- Tailwind CSS
+- Google Generative AI SDK
+- Node.js
 
 ## Security
 
