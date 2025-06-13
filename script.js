@@ -1,6 +1,20 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = "AIzaSyCDnOgI8gQnxs8su_JRnnMDs8_lJcVxaxU";
+// Initialize Google Generative AI
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+if (!API_KEY) {
+    console.error('Error: GEMINI_API_KEY environment variable is not set');
+    // Show error message to the user
+    const chat = document.querySelector('.chat');
+    if (chat) {
+        chat.insertAdjacentHTML('beforeend', `
+            <div class="error">
+                <p>Error: API key is not configured. Please check your .env file.</p>
+            </div>
+        `);
+    }
+}
+
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
@@ -8,7 +22,26 @@ const model = genAI.getGenerativeModel({
         temperature: 0.7,
         topP: 0.8,
         topK: 40,
-    }
+        maxOutputTokens: 2048,
+    },
+    safetySettings: [
+        {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+    ]
 });
 
 // Define available functions for cyber training game
@@ -88,339 +121,212 @@ let messages = {
     functions: functions
 };
 
-// Function implementations
-async function generatePost(args) {
-    if (!args.description) {
-        return { error: "Please provide a description for the post" };
-    }
+// Function to create a streaming response
+async function streamResponse(prompt, model, chatWindow) {
+    // Create model response element
+    const modelDiv = document.createElement('div');
+    modelDiv.className = 'model';
+    const modelContent = document.createElement('p');
+    modelDiv.appendChild(modelContent);
+    chatWindow.appendChild(modelDiv);
     
-    try {
-        const prompt = `Generate a social media post about ${args.subject} that includes the following details: ${args.description}. The post should be engaging and contain personal information that could be used in the cyber training game.`;
-        
-        const chat = model.startChat();
-        const result = await chat.sendMessage(prompt);
-        
-        return {
-            type: "post",
-            content: result.text,
-            subject: args.subject,
-            description: args.description
-        };
-    } catch (error) {
-        console.error('Post generation error:', error);
-        return { error: "Failed to generate post" };
-    }
-}
+    // Start a chat session
+    const chat = model.startChat({
+        generationConfig: {
+            temperature: 0.7,
+            topP: 0.8,
+            topK: 40,
+            maxOutputTokens: 1024,
+        },
+        safetySettings: [
+            {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+        ],
+        history: []
+    });
 
-async function generateEmail(args) {
-    if (!args.description) {
-        return { error: "Please provide a description for the email" };
-    }
-    
     try {
-        const prompt = `Generate an email about ${args.subject} that includes the following details: ${args.description}. The email should be convincing and contain personal information that could be used in the cyber training game.`;
-        
-        const chat = model.startChat();
+        // For the current version, we'll simulate streaming with a non-streaming response
+        // since the streaming API might not be fully supported in this version
         const result = await chat.sendMessage(prompt);
+        const responseText = result.response.text();
         
-        return {
-            type: "email",
-            content: result.text,
-            subject: args.subject,
-            description: args.description
-        };
+        // Simulate streaming by adding text character by character
+        let i = 0;
+        const speed = 20; // milliseconds per character
+        
+        return new Promise((resolve) => {
+            const typeWriter = () => {
+                if (i < responseText.length) {
+                    modelContent.textContent = responseText.substring(0, i + 1);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                    i++;
+                    setTimeout(typeWriter, speed);
+                } else {
+                    // Remove loading indicator when done
+                    const loaders = chatWindow.querySelectorAll('.typing-indicator, .loader');
+                    loaders.forEach(loader => {
+                        if (loader && loader.parentNode) {
+                            chatWindow.removeChild(loader);
+                        }
+                    });
+                    resolve(responseText);
+                }
+            };
+            typeWriter();
+        });
     } catch (error) {
-        console.error('Email generation error:', error);
-        return { error: "Failed to generate email" };
-    }
-}
-
-async function generateMessage(args) {
-    if (!args.description) {
-        return { error: "Please provide a description for the message" };
-    }
-    
-    try {
-        const prompt = `Generate a direct message about ${args.subject} that includes the following details: ${args.description}. The message should be personal and contain information that could be used in the cyber training game.`;
-        
-        const chat = model.startChat();
-        const result = await chat.sendMessage(prompt);
-        
-        return {
-            type: "message",
-            content: result.text,
-            subject: args.subject,
-            description: args.description
-        };
-    } catch (error) {
-        console.error('Message generation error:', error);
-        return { error: "Failed to generate message" };
-    }
-}
-
-async function generateNotification(args) {
-    if (!args.description) {
-        return { error: "Please provide a description for the notification" };
-    }
-    
-    try {
-        const prompt = `Generate a notification about ${args.subject} that includes the following details: ${args.description}. The notification should be relevant and contain information that could be used in the cyber training game.`;
-        
-        const chat = model.startChat();
-        const result = await chat.sendMessage(prompt);
-        
-        return {
-            type: "notification",
-            content: result.text,
-            subject: args.subject,
-            description: args.description
-        };
-    } catch (error) {
-        console.error('Notification generation error:', error);
-        return { error: "Failed to generate notification" };
-    }
-}
-
-// Function to execute functions
-async function executeFunction(functionCall) {
-    const functionName = functionCall.name;
-    const functionArgs = functionCall.arguments;
-    
-    switch (functionName) {
-        case 'generatePost':
-            return await generatePost(functionArgs);
-        case 'generateEmail':
-            return await generateEmail(functionArgs);
-        case 'generateMessage':
-            return await generateMessage(functionArgs);
-        case 'generateNotification':
-            return await generateNotification(functionArgs);
-        default:
-            throw new Error(`Unknown function: ${functionName}`);
+        console.error('Error generating response:', error);
+        modelContent.textContent = 'Sorry, there was an error generating the response. Please try again.';
+        return '';
     }
 }
 
 async function sendMessage() {
     const userMessage = document.querySelector(".chat-window input").value;
     if (userMessage.length) {
-        try {
-            document.querySelector(".chat-window input").value = "";
-            document.querySelector(".chat-window .chat").insertAdjacentHTML("beforeend",`
-                <div class="user">
-                    <p>${userMessage}</p>
-                </div>
-            `);
+        const chatWindow = document.querySelector(".chat-window .chat");
+        const input = document.querySelector(".chat-window input");
+        
+        // Clear input and show user message
+        input.value = "";
+        chatWindow.insertAdjacentHTML("beforeend", `
+            <div class="user">
+                <p>${userMessage}</p>
+            </div>
+        `);
 
-            // Check if the request is valid before showing loader
-            const allowedPatterns = [
-                /^create post\s+/,
-                /^write post\s+/,
-                /^generate post\s+/,
-                /^create email\s+/,
-                /^write email\s+/,
-                /^generate email\s+/,
-                /^create message\s+/,
-                /^write message\s+/,
-                /^generate message\s+/,
-                /^create notification\s+/,
-                /^write notification\s+/,
-                /^generate notification\s+/
+        // Show loader
+        chatWindow.insertAdjacentHTML("beforeend", `
+            <div class="typing-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        `);
+
+        try {
+            let responseText = '';
+            
+            // Check if this is a command-based request
+            const commandPatterns = [
+                /^(create|write|generate) (post|social|email|message|notification)\s+/i
             ];
 
-            const cleanedMessage = userMessage.toLowerCase().trim();
-            const isValidRequest = allowedPatterns.some(pattern => pattern.test(cleanedMessage));
+            const isCommand = commandPatterns.some(pattern => pattern.test(userMessage));
 
-            if (!isValidRequest) {
-                // If not a valid request, do not show any response
-                return;
-            }
+            if (isCommand) {
+                // Handle command-based requests
+                const cleanedMessage = userMessage.toLowerCase().trim();
+                const requestType = cleanedMessage.split(' ')[1];
+                
+                // Get the remaining text after the command
+                const remainingText = cleanedMessage
+                    .replace(/^create |^write |^generate /, '')
+                    .trim()
+                    .replace(/^(post|social|email|message|notification)\s+/, '')
+                    .trim();
 
-            // If valid request, show loader and continue
-            document.querySelector(".chat-window .chat").insertAdjacentHTML("beforeend",`
-                <div class="loader"></div>
-            `);
-
-            // Create a chat with a restrictive system prompt
-            const chat = model.startChat({
-                systemPrompt: "You are a cyber security training assistant. Only generate social media posts, emails, messages, or notifications. Do not respond to any other requests.",
-                generationConfig: {
-                    temperature: 0.7,
-                    topP: 0.8,
-                    topK: 40
-                }
-            });
-
-            // Get the type of content being requested (second word)
-            const requestType = cleanedMessage.split(' ')[1];
-            
-            // Get the remaining text after the command
-            const remainingText = cleanedMessage
-                .replace(/^create |^write |^generate /, '')
-                .trim()
-                .replace(/^(post|email|message|notification)\s+/, '')
-                .trim();
-
-            // Determine the function based on the request type
-            let functionName;
-            switch(requestType) {
-                case 'post':
-                case 'social':
-                    functionName = 'generatePost';
-                    break;
-                case 'email':
-                    functionName = 'generateEmail';
-                    break;
-                case 'message':
-                case 'text':
-                    functionName = 'generateMessage';
-                    break;
-                case 'notification':
-                    functionName = 'generateNotification';
-                    break;
-                default:
-                    // Should never get here if we matched a pattern
-                    return;
-            }
-
-            if (!functionName) {
-                return;
-            }
-
-            // Create the prompt
-            let prompt;
-            switch(functionName) {
-                case 'generatePost':
-                    prompt = `Generate a social media post about ${remainingText}. The post should be engaging and contain personal information that could be used in the cyber training game.`;
-                    break;
-                case 'generateEmail':
-                    prompt = `Generate an email about ${remainingText}. The email should be convincing and contain personal information that could be used in the cyber training game.`;
-                    break;
-                case 'generateMessage':
-                    prompt = `Generate a direct message about ${remainingText}. The message should be personal and contain information that could be used in the cyber training game.`;
-                    break;
-                case 'generateNotification':
-                    prompt = `Generate a notification about ${remainingText}. The notification should be relevant and contain information that could be used in the cyber training game.`;
-                    break;
-            }
-
-            // Create a new model response container
-            const modelDiv = document.createElement('div');
-            modelDiv.className = 'model';
-            const modelContent = document.createElement('p');
-            modelDiv.appendChild(modelContent);
-            document.querySelector('.chat-window .chat').appendChild(modelDiv);
-
-            // Get the model messages again
-            const modelMessages = document.querySelectorAll('.chat-window .chat div.model');
-            const lastMessage = modelMessages[modelMessages.length - 1];
-
-            // Send the message stream
-            try {
-                const result = await chat.sendMessageStream(prompt);
-                let fullResponse = '';
-
-                // Process the stream
-                for await (const chunk of result.stream) {
-                    const chunkText = chunk.text();
-                    if (chunkText) {
-                        fullResponse += chunkText;
-                        lastMessage.querySelector('p').textContent = `
-                            <strong>Generated ${functionName}:</strong><br>
-                            ${fullResponse}
-                        `;
-                    }
+                // Determine the function based on the request type
+                let functionName;
+                switch(requestType) {
+                    case 'post':
+                    case 'social':
+                        functionName = 'generatePost';
+                        break;
+                    case 'email':
+                        functionName = 'generateEmail';
+                        break;
+                    case 'message':
+                        functionName = 'generateMessage';
+                        break;
+                    case 'notification':
+                        functionName = 'generateNotification';
+                        break;
+                    default:
+                        throw new Error(`Unknown request type: ${requestType}`);
                 }
 
-                // Add to history
-                messages.history.push({
-                    role: "user",
-                    parts: [{ text: userMessage }],
-                });
-
-                // Add model response to history
-                messages.history.push({
-                    role: "model",
-                    parts: [{ text: fullResponse }],
-                });
-
-                // Remove loader
-                const loader = document.querySelector(".chat-window .chat .loader");
-                if (loader) {
-                    loader.remove();
+                // Generate a prompt for the AI
+                let prompt = '';
+                switch(functionName) {
+                    case 'generatePost':
+                        prompt = `Create a social media post about: ${remainingText}`;
+                        break;
+                    case 'generateEmail':
+                        prompt = `Write an email about: ${remainingText}`;
+                        break;
+                    case 'generateMessage':
+                        prompt = `Write a direct message about: ${remainingText}`;
+                        break;
+                    case 'generateNotification':
+                        prompt = `Create a notification about: ${remainingText}`;
+                        break;
                 }
 
-                // Scroll to bottom
-                const container = document.querySelector(".chat");
-                if (container) {
-                    container.scrollTop = container.scrollHeight;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                // Remove loader
-                const loader = document.querySelector(".chat-window .chat .loader");
-                if (loader) {
-                    loader.remove();
-                }
-                // Show error message
-                document.querySelector(".chat-window .chat").insertAdjacentHTML("beforeend", `
-                    <div class="error">
-                        <p>The message could not be sent. Please try again.</p>
-                    </div>
-                `);
-                // Scroll to bottom on error
-                const container = document.querySelector(".chat");
-                if (container) {
-                    container.scrollTop = container.scrollHeight;
-                }
+                // Use the streaming function
+                responseText = await streamResponse(prompt, model, chatWindow);
+            } else {
+                // Use the streaming function for general chat
+                responseText = await streamResponse(userMessage, model, chatWindow);
             }
 
-            // Add to history
-            messages.history.push({
-                role: "user",
-                parts: [{ text: userMessage }],
-            });
+            // The response and loader are managed by the streamResponse function
 
-            // Add model response to history
-            messages.history.push({
-                role: "model",
-                parts: [{ text: fullResponse }],
-            });
-
-            // Scroll to bottom
-            const container = document.querySelector(".chat");
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
         } catch (error) {
             console.error('Error:', error);
             // Remove loader
-            const loader = document.querySelector(".chat-window .chat .loader");
+            const loader = chatWindow.querySelector(".typing-indicator");
             if (loader) {
+                chatWindow.removeChild(loader);
                 loader.remove();
             }
             // Show error message
-            document.querySelector(".chat-window .chat").insertAdjacentHTML("beforeend", `
+            chatWindow.insertAdjacentHTML("beforeend", `
                 <div class="error">
-                    <p>The message could not be sent. Please try again.</p>
+                    <p>Sorry, I encountered an error: ${error.message}</p>
                 </div>
             `);
             // Scroll to bottom on error
-            const container = document.querySelector(".chat");
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
     }
 }
 
-// Add event listeners
-const input = document.querySelector(".chat-window input");
-input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+// Initialize the application when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Add event listeners
+    const input = document.querySelector(".chat-window input");
+    const button = document.querySelector(".input-area button");
+
+    if (input) {
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    } else {
+        console.error('Input element not found');
+    }
+
+    if (button) {
+        button.addEventListener("click", sendMessage);
+    } else {
+        console.error('Send button not found');
     }
 });
-
-const button = document.querySelector(".chat-window .input-area button");
-button.addEventListener("click", sendMessage);
