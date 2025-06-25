@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Content Generator</title>
+  <base href="/">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/CSS/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+</head>
+<body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="welcome">Welcome, Jud!</div>
+    
+        <nav class="menu">
+          <ul>
+            <li class="menu-item">
+              <div class="menu-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+              </div>
+            </li>
+
+            <li class="menu-item">
+              <div class="menu-link">
+                <i class="fas fa-magic"></i>
+                <span>AI Creations</span>
+              </div>
+            </li>
+
+            <li class="menu-item dropdown">
+              <div class="menu-link dropdown-toggle">
+                <i class="fas fa-project-diagram"></i>
+                <span>Interactions</span>
+              </div>
+              <ul class="dropdown-menu">
+                <li class="dropdown-item"><i class="fas fa-newspaper"></i> Posts</li>
+                <li class="dropdown-item"><i class="fas fa-envelope"></i> Emails</li>
+                <li class="dropdown-item"><i class="fas fa-comments"></i> Messages & Conversations</li>
+                <li class="dropdown-item"><i class="fas fa-bell"></i> Notifications</li>
+              </ul>
+            </li>
+
+            <li class="menu-item dropdown">
+              <div class="menu-link dropdown-toggle">
+                <i class="fas fa-sitemap"></i>
+                <span>Scenarios</span>
+              </div>
+              <ul class="dropdown-menu">
+                <li class="dropdown-item"><i class="fas fa-list"></i> All Scenarios</li>
+                <li class="dropdown-item"><i class="fas fa-plus-circle"></i> New Scenario</li>
+                <li class="dropdown-item"><i class="fas fa-microchip"></i> Micro Scenarios</li>
+              </ul>
+            </li>
+
+            <li class="menu-item dropdown">
+              <div class="menu-link dropdown-toggle">
+                <i class="fas fa-gamepad"></i>
+                <span>Games & Sessions</span>
+              </div>
+              <ul class="dropdown-menu">
+                <li class="dropdown-item"><i class="fas fa-list"></i> All Games</li>
+                <li class="dropdown-item"><i class="fas fa-plus-circle"></i> New Game</li>
+                <li class="dropdown-item"><i class="fas fa-calendar-alt"></i> All Game Sessions</li>
+                <li class="dropdown-item"><i class="fas fa-plus"></i> New Game Session</li>
+              </ul>
+            </li>
+
+            <li class="menu-item">
+              <div class="menu-link">
+                <i class="fas fa-building"></i>
+                <span>Institutions & Groups</span>
+              </div>
+            </li>
+            <li class="menu-item">
+              <div class="menu-link">
+                <i class="fas fa-book"></i>
+                <span>Knowledge Base</span>
+              </div>
+            </li>
+          </ul>
+        </nav>
+    
+        <div class="profile">
+          <img src="/static/Jud.jpg" alt="Profile" />
+          <span>Profile Settings</span>
+        </div>
+      </aside>
+
+      <main>
+        <header class="main-header">
+          <h1>AI Content Generator</h1>
+          <p class="subtitle">Create engaging content with the power of AI</p>
+        </header>
+        <div class="container">
+          <div class="card">
+            <form id="promptForm" onsubmit="event.preventDefault(); sendPrompt();">
+              <div class="form-group">
+                <label for="contentType">Content Type</label>
+                <div class="content-type-selector">
+                  <label class="content-type-option">
+                    <input type="radio" name="contentType" value="message" checked>
+                    <span class="content-type-tag">Message</span>
+                  </label>
+                  <label class="content-type-option">
+                    <input type="radio" name="contentType" value="post">
+                    <span class="content-type-tag">Social Post</span>
+                  </label>
+                  <label class="content-type-option">
+                    <input type="radio" name="contentType" value="email">
+                    <span class="content-type-tag">Email</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prompt">Your Prompt</label>
+                <textarea 
+                  id="chatbox" 
+                  placeholder="E.g., Generate messages about resetting your password..."
+                  required
+                ></textarea>
+              </div>
+
+              <div class="grid-cols-2">
+                <div class="form-group">
+                  <label for="topic">Topic</label>
+                  <input type="text" id="topic" value="cybersecurity" required>
+                </div>
+
+          <div class="form-group">
+            <label for="numResponses">Number of Responses</label>
+            <input type="number" id="numResponses" min="1" max="10" value="5" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modifier">Tone & Style</label>
+          <input type="text" id="modifier" value="Make it professional but engaging">
+        </div>
+
+        <div class="form-group">
+          <label>Risk Level</label>
+          <div class="risk-levels">
+            <label class="risk-option">
+              <input type="radio" name="riskLevel" value="low" checked>
+              <span class="risk-tag low-risk">Low Risk</span>
+            </label>
+            <label class="risk-option">
+              <input type="radio" name="riskLevel" value="medium">
+              <span class="risk-tag medium-risk">Medium Risk</span>
+            </label>
+            <label class="risk-option">
+              <input type="radio" name="riskLevel" value="high">
+              <span class="risk-tag high-risk">High Risk</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="emojis">
+          <label for="emojis" style="margin: 0; font-weight: normal;">Include Emojis</label>
+        </div>
+
+        <button type="submit" id="submitBtn">
+          <span>Generate Content</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="response-container">
+      <div class="response-header">
+        <h2>Generated Content</h2>
+        <div id="progress" class="response-count">0/0 responses</div>
+      </div>
+      <div id="response"></div>
+    </div>
+  </div>
+
+  <script>
+    let responseBox;
+    let progressElement;
+    let currentResponses = [];
+    let isGenerating = false;
+
+    function initElements() {
+      responseBox = document.getElementById('response');
+      progressElement = document.getElementById('progress');
+      
+      // Add click handler to the form
+      const form = document.getElementById('promptForm');
+      form.addEventListener('submit', handleFormSubmit);
+    }
+
+    // Toggle dropdowns
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dropdown = toggle.closest('.dropdown');
+        dropdown.classList.toggle('active');
+        
+        // Close other dropdowns when opening a new one
+        if (dropdown.classList.contains('active')) {
+          document.querySelectorAll('.dropdown').forEach(d => {
+            if (d !== dropdown) {
+              d.classList.remove('active');
+            }
+          });
+        }
+      });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
+          dropdown.classList.remove('active');
+        });
+      }
+    });
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      if (isGenerating) return;
+      
+      const prompt = document.getElementById('chatbox').value.trim();
+      if (!prompt) return;
+      
+      await sendPrompt();
+    }
+
+    function toggleLoadingState(isLoading) {
+      const button = document.getElementById('submitBtn');
+      isGenerating = isLoading;
+      button.disabled = isLoading;
+      button.innerHTML = isLoading 
+        ? '<span>Generating...</span><div class="spinner"></div>' 
+        : '<span>Generate Content</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
+    }
+
+    function addMessage(text, isTyping = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message${isTyping ? ' typing' : ''}`;
+      messageDiv.textContent = text;
+      
+      if (isTyping) {
+        messageDiv.id = 'typing-message';
+        const existingTyping = document.getElementById('typing-message');
+        if (existingTyping) {
+          existingTyping.remove();
+        }
+      }
+      
+      return messageDiv;
+    }
+
+    async function sendPrompt() {
+      const prompt = document.getElementById('chatbox').value.trim();
+      const emojis = document.getElementById('emojis').checked;
+      const topic = document.getElementById('topic').value.trim() || 'cybersecurity';
+      const modifier = document.getElementById('modifier').value.trim();
+      const numResponses = parseInt(document.getElementById('numResponses').value) || 5;
+      const riskLevel = document.querySelector('input[name="riskLevel"]:checked').value || 'medium';
+      const contentType = document.querySelector('input[name="contentType"]:checked').value || 'message';
+
+      // Initialize elements if not already done
+      if (!responseBox) initElements();
+      
+      // Clear previous responses and show loading state
+      responseBox.innerHTML = '';
+      currentResponses = [];
+      toggleLoadingState(true);
+      
+      // Show initial progress
+      updateProgress(0, numResponses);
+      
+      // Log the request details
+      console.log('Sending request to /chat with:', {
+        prompt,
+        topic,
+        modifier,
+        emojis,
+        numResponses,
+        riskLevel,
+        contentType
+      });
+      
+      try {
+        const data = {
+          prompt: prompt,
+          emojis: emojis,
+          topic: topic,
+          modifier: modifier,
+          num_responses: numResponses,
+          risk_level: riskLevel,
+          content_type: contentType
+        };
+
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/x-ndjson"
+          },
+          body: JSON.stringify({ 
+            prompt, 
+            topic, 
+            modifier, 
+            emojis,
+            content_type: contentType,
+            risk_level: riskLevel,
+            num_responses: numResponses
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, ${response.statusText}, Details: ${errorText}`);
+        }
+
+        if (!response.body) {
+          throw new Error('Streaming not supported in this browser.');
+        }
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let responseCount = 0;
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Process complete JSON objects in the buffer
+          let newlineIndex;
+          while ((newlineIndex = buffer.indexOf('\n')) >= 0) {
+            const line = buffer.substring(0, newlineIndex).trim();
+            buffer = buffer.substring(newlineIndex + 1);
+            
+            if (!line) continue;
+            
+            try {
+              const data = JSON.parse(line);
+              if (data.error) {
+                throw new Error(data.error);
+              }
+              
+              try {
+                if (data.error) {
+                  throw new Error(data.error);
+                }
+                
+                // Get the response text
+                let message = data.response || data.message || JSON.stringify(data);
+                
+                // If it's not a string, try to stringify it
+                if (typeof message !== 'string') {
+                  message = JSON.stringify(message, null, 2);
+                }
+                
+                responseCount++;
+                updateProgress(responseCount, numResponses);
+                
+                // Clean up the message
+                message = message
+                  .replace(/```(?:json\n)?/g, '') // Remove markdown code block markers
+                  .replace(/`/g, '') // Remove any remaining backticks
+                  .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines
+                  .trim();
+                
+                // Split by common response delimiters and take the first part
+                const splitResponses = message.split(/\n\s*\n|\n\d+\.\s*/).filter(Boolean);
+                const cleanMessage = splitResponses[0] || message;
+                
+                // Only update if we have content
+                if (cleanMessage) {
+                  currentResponses[data.index] = cleanMessage;
+                  // Update the UI
+                  renderResponses();
+                  updateProgress(currentResponses.filter(Boolean).length, numResponses);
+                }
+              } catch (e) {
+                console.error('Error processing response:', e);
+              }
+              
+            } catch (e) {
+              console.error('Error parsing response:', e);
+              const errorDiv = addMessage(`Error: ${e.message}`);
+              responseBox.insertBefore(errorDiv, responseBox.firstChild);
+            }
+          }
+        }
+        
+        // Process any remaining data in the buffer
+        if (buffer.trim()) {
+          try {
+            const data = JSON.parse(buffer);
+            if (data.error) throw new Error(data.error);
+            
+            try {
+              let message = data.response;
+              if (typeof message !== 'string') {
+                message = JSON.stringify(message);
+              }
+              
+              message = message
+                .replace(/```(?:json\n)?/g, '')
+                .replace(/`/g, '')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+                
+              const splitResponses = message.split(/\n\s*\n|\n\d+\.\s*/).filter(Boolean);
+              const cleanMessage = splitResponses[0] || message;
+              
+              if (cleanMessage) {
+                currentResponses[data.index] = cleanMessage;
+                renderResponses();
+                updateProgress(currentResponses.filter(Boolean).length, numResponses);
+              }
+            } catch (e) {
+              console.error('Error processing final response:', e);
+            }
+          } catch (e) {
+            console.error('Error parsing final response:', e);
+          }
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        const errorDiv = addMessage(`Error: ${error.message}`);
+        responseBox.insertBefore(errorDiv, responseBox.firstChild);
+      } finally {
+        toggleLoadingState(false);
+      }
+    }
+    
+    function updateProgress(current, total) {
+      if (!progressElement) return;
+      progressElement.textContent = `${current} of ${total} responses`;
+    }
+    
+    function renderResponses() {
+      if (!responseBox) return;
+      
+      // Clear the response box
+      responseBox.innerHTML = '';
+      
+      // Filter out any empty responses and reverse to show newest first
+      const validResponses = currentResponses.filter(Boolean);
+      
+      if (validResponses.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'message';
+        emptyState.textContent = 'No responses generated yet. Try submitting a prompt!';
+        responseBox.appendChild(emptyState);
+        return;
+      }
+      
+      // Add all current responses in reverse order (newest first)
+      validResponses.reverse().forEach((response, index) => {
+        if (response) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = 'message';
+          
+          // Add message index
+          const indexBadge = document.createElement('div');
+          indexBadge.className = 'message-index';
+          indexBadge.textContent = validResponses.length - index;
+          messageDiv.appendChild(indexBadge);
+          
+          // Add message content with preserved line breaks
+          const content = document.createElement('div');
+          content.textContent = response;
+          content.style.whiteSpace = 'pre-line';
+          messageDiv.appendChild(content);
+          
+          responseBox.appendChild(messageDiv);
+        }
+      });
+      
+      // Scroll to the top to show the newest messages
+      if (responseBox.firstChild) {
+        responseBox.scrollTop = 0;
+      }
+    }
+    
+    // Initialize elements when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      initElements();
+      // Render empty state initially
+      renderResponses();
+    });
+  </script>
+</body>
+</html>
